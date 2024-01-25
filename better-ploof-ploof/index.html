@@ -80,7 +80,9 @@
       /**
        * @type {string[]}
        */
-      let NAMES = randomize(["Luc", "Maxime", "Youssef", "PO", "Richad"]);
+      let NAMES = window.location.hash.includes("error")
+        ? randomize(["Youssef", "Luc", "Lea", "Richad", "Maxime"])
+        : randomize(["Youssef", "Richad", "Lea", "Yoann"]);
 
       const ANIMATION_DURATION = 250;
 
