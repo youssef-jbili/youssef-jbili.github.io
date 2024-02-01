@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <title>The better ploof ploof</title>
     <style>
       * {
         margin: 0;
@@ -16,7 +18,7 @@
       body {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        height: 100vh;
       }
       #content {
         flex-grow: 1;
@@ -24,16 +26,14 @@
         padding-top: 60px;
       }
       .nameBlock {
-        display: inline-block;
         color: #555;
-        transition: color 0.5s;
         padding: 8px 10px;
         margin: 7px;
         border: 1px solid #aaa;
         display: inline-block;
         font-size: 1.1rem;
         background-color: #fff;
-        transition: background-color 0.5s, transform 0.5s;
+        transition: background-color 0.5s, transform 0.5s, color 0.5s;
         transform: translateY(0);
         min-width: 60px;
         text-align: center;
@@ -67,10 +67,20 @@
       }
     </style>
     <script>
+      /**
+       * @param {number} max
+       * @returns {number}
+       */
+      function getTrueRandom(max) {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return array[0] % max;
+      }
+
       function randomize(list) {
         const result = [];
         while (list.length > 0) {
-          const idx = Math.floor(list.length * Math.random());
+          const idx = getTrueRandom(list.length);
           result.push(list[idx]);
           list.splice(idx, 1);
         }
@@ -160,7 +170,7 @@
        * @returns {Promise<void>}
        */
       async function selectRandom(names) {
-        const randomChoice = Math.floor(names.length * Math.random());
+        const randomChoice = getTrueRandom(names.length);
         for (let i = 0; i <= randomChoice; i++) {
           const name = names[i];
           hoverName(name);
