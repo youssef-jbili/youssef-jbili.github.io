@@ -77,22 +77,12 @@
         return array[0] % max;
       }
 
-      function randomize(list) {
-        const result = [];
-        while (list.length > 0) {
-          const idx = getTrueRandom(list.length);
-          result.push(list[idx]);
-          list.splice(idx, 1);
-        }
-        return result;
-      }
-
       /**
        * @type {string[]}
        */
       let NAMES = window.location.hash.includes("error")
-        ? randomize(["Youssef", "Luc", "Lea", "Richad", "Maxime"])
-        : randomize(["Youssef", "Richad", "Lea", "Yoann"]);
+        ? ["Youssef", "Luc", "Lea", "Richad", "Maxime"]
+        : ["Youssef", "Richad", "Lea", "Yoann"];
 
       const ANIMATION_DURATION = 250;
 
