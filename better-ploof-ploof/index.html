@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The better ploof ploof</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+          Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+      }
+      header,
+      footer {
+        background: #4cb4ff;
+        width: 100%;
+        height: 50px;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #content {
+        flex-grow: 1;
+        text-align: center;
+        padding-top: 60px;
+      }
+      .nameBlock {
+        color: #555;
+        padding: 8px 10px;
+        margin: 7px;
+        border: 1px solid #aaa;
+        display: inline-block;
+        font-size: 1.1rem;
+        background-color: #fff;
+        transition: background-color 0.5s, transform 0.5s, color 0.5s;
+        transform: translateY(0);
+        min-width: 60px;
+        text-align: center;
+      }
+      .hovered {
+        transform: translateY(20px);
+      }
+      .selected {
+        color: white;
+        border: 1px solid #00e661;
+        background-color: #00e661;
+      }
+      #message {
+        margin: 40px;
+        font-size: 1.5rem;
+      }
+      button {
+        background-color: #4cb4ff;
+        border: 1px solid #4cb4ff;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 1.3rem;
+        min-height: 50px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin: 0 10px 20px;
+      }
+      button:hover {
+        background-color: #20a2ff;
+      }
+    </style>
+    <script>
+      /**
+       * @param {number} max
+       * @returns {number}
+       */
+      function getTrueRandom(max) {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return array[0] % max;
+      }
+
+      /**
+       * @type {string[]}
+       */
+      let NAMES = window.location.hash.includes("error")
+        ? ["Youssef", "Luc", "Richad", "Maxime", "Nicolas", "Alan"]
+        : ["Youssef", "Richad","Naoufel", "Yoann"];
+
+      const ANIMATION_DURATION = 250;
+
+      /**
+       * @param {string} name
+       * @returns {HTMLElement}
+       */
+      function renderName(name) {
+        const nameBlock = document.createElement("div");
+        nameBlock.setAttribute("class", "nameBlock");
+        nameBlock.setAttribute("id", `name-${name.toLowerCase()}`);
+        nameBlock.innerText = name;
+        return nameBlock;
+      }
+
+      /**
+       * @param {number} duration
+       * @returns {Promise<void>}
+       */
+      async function sleep(duration) {
+        await new Promise((res) => setTimeout(res, duration));
+      }
+
+      function clearHover() {
+        const hovered = document.querySelector(".hovered");
+        if (hovered) {
+          hovered.setAttribute("class", "nameBlock");
+        }
+      }
+
+      /**
+       * @param {string} name
+       * @returns {void}
+       */
+      function hoverName(name) {
+        clearHover();
+
+        const target = document.querySelector(`#name-${name.toLowerCase()}`);
+        target.setAttribute("class", "nameBlock hovered");
+      }
+
+      /**
+       * @param {string} name
+       * @returns {void}
+       */
+      function selectName(name) {
+        clearHover();
+
+        document
+          .querySelector(`#name-${name.toLowerCase()}`)
+          .setAttribute("class", "nameBlock selected");
+
+        const restartWithoutButton = document.querySelector("#restart-without");
+
+        restartWithoutButton.innerText = `Refaire sans "${name}"`;
+        restartWithoutButton.onclick = () => {
+          NAMES = NAMES.filter((n) => n !== name);
+          doPloofPloof();
+        };
+      }
+
+      /**
+       * @param {string[]} names
+       * @returns {Promise<void>}
+       */
+      async function warmUp(names) {
+        for (const name of names) {
+          hoverName(name);
+          await sleep(ANIMATION_DURATION);
+        }
+      }
+
+      /**
+       * @param {string[]} names
+       * @returns {Promise<void>}
+       */
+      async function selectRandom(names) {
+        const randomChoice = getTrueRandom(names.length);
+        for (let i = 0; i <= randomChoice; i++) {
+          const name = names[i];
+          hoverName(name);
+          await sleep(ANIMATION_DURATION);
+        }
+        clearHover();
+        await sleep(50);
+        selectName(names[randomChoice]);
+        displayWinner(names[randomChoice]);
+      }
+
+      /**
+       * @param {HTMLElement} element
+       */
+      function clearChildren(element) {
+        while (element.lastChild) {
+          element.removeChild(element.lastChild);
+        }
+      }
+
+      /**
+       * @param {string} name
+       */
+      function displayWinner(name) {
+        const messageHost = document.querySelector("#message");
+        clearChildren(messageHost);
+
+        const nameElement = document.createElement("strong");
+        nameElement.innerText = name;
+
+        const restOfText = document.createTextNode(" a été tiré(e) au sort !");
+
+        messageHost.appendChild(nameElement);
+        messageHost.appendChild(restOfText);
+      }
+
+      /**
+       * @returns {Promise<void>}
+       */
+      async function doPloofPloof() {
+        const content = document.querySelector("#names");
+        clearChildren(content);
+
+        NAMES.forEach((name) => {
+          const nameBlock = renderName(name);
+          content.appendChild(nameBlock);
+        });
+        await sleep(ANIMATION_DURATION);
+
+        const restartButton = document.querySelector("#controls");
+        restartButton.style.display = "none";
+
+        await warmUp(NAMES);
+        await selectRandom(NAMES);
+
+        restartButton.style.display = "block";
+      }
+
+      window.onload = async () => {
+        const restartButton = document.querySelector("#restart");
+        restartButton.onclick = doPloofPloof;
+        await doPloofPloof();
+      };
+    </script>
+  </head>
+  <body>
+    <header></header>
+    <div id="content">
+      <div id="names"></div>
+      <div id="controls">
+        <div id="message"></div>
+        <div>
+          <button id="restart">Refaire</button>
+          <button id="restart-without">Refaire</button>
+        </div>
+      </div>
+    </div>
+    <footer></footer>
+  </body>
+</html>
